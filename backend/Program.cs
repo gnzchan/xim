@@ -1,5 +1,7 @@
 using System.Text;
 using backend.Data;
+using backend.Profiles;
+using backend.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<XimDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddScoped<RoomRepository>();
+builder.Services.AddScoped<RoomService>();
+builder.Services.AddAutoMapper(typeof(RoomProfile).Assembly);
 
 builder.Services.AddAuthentication(options =>
     {
