@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-
 namespace backend.Models
 {
     public class Room
@@ -8,6 +6,6 @@ namespace backend.Models
         public string RoomName { get; set; }
         public string RoomCode { get; set; }
         public int Capacity { get; set; }
-        public List<IdentityUser> Users { get; set; }
+        public ICollection<RoomAttendee> Attendees { get; set; }
     }
 }

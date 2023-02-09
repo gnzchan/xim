@@ -1,11 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using backend.DTOs;
 using backend.Models;
+using backend.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Controllers
 {
@@ -13,13 +10,13 @@ namespace backend.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IConfiguration _configuration;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly TokenService _tokenService;
 
-        public AuthController(UserManager<IdentityUser> userManager, IConfiguration configuration)
+        public AuthController(UserManager<AppUser> userManager, TokenService tokenService)
         {
             _userManager = userManager;
-            _configuration = configuration;
+            _tokenService = tokenService;
         }
 
         [HttpPost("register")]
@@ -44,7 +41,7 @@ namespace backend.Controllers
                 });
             }
 
-            var newUser = new IdentityUser
+            var newUser = new AppUser
             {
                 Email = requestDto.Email,
                 UserName = requestDto.UserName,
@@ -64,7 +61,7 @@ namespace backend.Controllers
                 });
             }
 
-            var token = GenerateJwtToken(newUser);
+            var token = _tokenService.GenerateJwtToken(newUser);
 
             return Ok(new AuthResult
             {
@@ -85,7 +82,7 @@ namespace backend.Controllers
 
             if (user == null)
             {
-                return BadRequest(new AuthResult
+                return Unauthorized(new AuthResult
                 {
                     ResultIsSuccess = false,
                     Errors = new List<string>
@@ -99,7 +96,7 @@ namespace backend.Controllers
 
             if (!isLoginCredentialsValid)
             {
-                return BadRequest(new AuthResult
+                return Unauthorized(new AuthResult
                 {
                     ResultIsSuccess = false,
                     Errors = new List<string>
@@ -109,39 +106,13 @@ namespace backend.Controllers
                 });
             }
 
-            var token = GenerateJwtToken(user);
+            var token = _tokenService.GenerateJwtToken(user);
 
             return Ok(new AuthResult
             {
                 Token = token,
                 ResultIsSuccess = true,
             });
-        }
-
-        private string GenerateJwtToken(IdentityUser user)
-        {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-
-            var key = Encoding.UTF8.GetBytes(_configuration["JwtConfig:Secret"]);
-
-            var tokenDescriptor = new SecurityTokenDescriptor()
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.NameId, user.Id),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToUniversalTime().ToString())
-                }),
-                Expires = DateTime.Now.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512)
-            };
-
-            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
-            var jwtToken = jwtTokenHandler.WriteToken(token);
-
-            return jwtToken;
         }
     }
 }
