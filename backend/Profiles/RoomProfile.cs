@@ -8,10 +8,8 @@ namespace backend.Profiles
     {
         public RoomProfile()
         {
-            CreateMap<Room, Room>();
             CreateMap<Room, ReadRoomDto>()
-                .ForMember(readRoomDto => readRoomDto.HostUsername, opt => opt
-                .MapFrom(src => src.Attendees.FirstOrDefault(x => x.IsHost).AppUser.UserName));
+                .ReverseMap();
 
             CreateMap<CreateRoomDto, Room>()
                 .ForMember(room => room.RoomId, opt => opt

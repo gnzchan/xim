@@ -2,6 +2,9 @@ using AutoMapper;
 using backend.Data;
 using backend.DTOs;
 using backend.Exceptions;
+using backend.Exceptions.Common;
+using backend.Exceptions.JoinRoom;
+using backend.Exceptions.LeaveRoom;
 using backend.Models;
 
 namespace backend.Service
@@ -19,14 +22,14 @@ namespace backend.Service
 
         public async Task<List<ReadRoomDto>> GetRooms()
         {
-            var rooms = _mapper.Map<List<ReadRoomDto>>(await _repository.GetRooms());
+            var rooms = await _repository.GetRoomsDto();
 
             return rooms;
         }
 
         public async Task<ReadRoomDto> GetRoom(Guid id)
         {
-            var room = _mapper.Map<ReadRoomDto>(await _repository.GetRoomById(id));
+            var room = await _repository.GetRoomDtoById(id);
 
             return room;
         }
@@ -46,31 +49,87 @@ namespace backend.Service
             {
                 AppUserId = user.Id,
                 Room = room,
-                IsHost = true
             };
 
+            room.HostUsername = user.UserName;
             room.Attendees.Add(roomAttendee);
 
-            _repository.CreateRoom(room);
+            await _repository.CreateRoom(room);
 
             return _mapper.Map<ReadRoomDto>(room);
         }
 
-        public async void DeleteRoom(Guid id)
+        public async Task<bool> DeleteRoom(Guid id, AppUser user)
+        {
+            var readRoomDto = await _repository.GetRoomDtoById(id);
+
+            if (readRoomDto == null)
+            {
+                throw new DeletingNonExistingRoomException();
+            }
+
+            if (readRoomDto.HostUsername != user.UserName)
+            {
+                throw new DeletingNotHostedRoomException();
+            }
+
+            await _repository.DeleteRoom(readRoomDto.RoomId);
+
+            return true;
+        }
+
+        public async Task<ReadRoomDto> JoinRoom(Guid id, AppUser user)
         {
             var room = await _repository.GetRoomById(id);
 
             if (room == null)
             {
-                throw new DeletingNonExistingRoomException();
+                throw new RoomNotFoundException();
             }
 
-            _repository.DeleteRoom(room);
+            if (room.HostUsername == user.UserName || room.Attendees.Any(ra => ra.AppUser.UserName == user.UserName))
+            {
+                throw new AlreadyJoinedRoomException();
+            }
+
+            var roomAttendee = new RoomAttendee
+            {
+                AppUserId = user.Id,
+                Room = room,
+            };
+
+            room.Attendees.Add(roomAttendee);
+
+            return _mapper.Map<ReadRoomDto>(room);
+        }
+
+        public async Task LeaveRoom(Guid id, AppUser user)
+        {
+            var room = await _repository.GetRoomById(id);
+
+            if (room == null)
+            {
+                throw new RoomNotFoundException();
+            }
+
+            if (room.HostUsername == user.UserName)
+            {
+                throw new HostLeaveRoomException();
+            }
+
+            var roomAttendee = room.Attendees.FirstOrDefault(ra => ra.AppUser.UserName == user.UserName);
+
+            if (roomAttendee == null)
+            {
+                throw new NotJoinedLeaveRoomException();
+            }
+
+            room.Attendees.Remove(roomAttendee);
         }
 
         public async Task<bool> SaveChanges()
         {
-            return await _repository.SaveChanges() > 0;
+            return await _repository.SaveChanges();
         }
     }
 }

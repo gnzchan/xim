@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using backend.DTOs;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,20 +9,30 @@ namespace backend.Data
     public class RoomRepository
     {
         private readonly XimDbContext _context;
+        private readonly IMapper _mapper;
 
-        public RoomRepository(XimDbContext context)
+        public RoomRepository(XimDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<List<Room>> GetRooms()
+        public async Task<List<ReadRoomDto>> GetRoomsDto()
         {
             var rooms = await _context.Rooms
-                .Include(r => r.Attendees)
-                .ThenInclude(u => u.AppUser)
+                .ProjectTo<ReadRoomDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
 
             return rooms;
+        }
+
+        public async Task<ReadRoomDto> GetRoomDtoById(Guid id)
+        {
+            var room = await _context.Rooms
+                .ProjectTo<ReadRoomDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(r => r.RoomId == id);
+
+            return room;
         }
 
         public async Task<Room> GetRoomById(Guid id)
@@ -41,19 +52,21 @@ namespace backend.Data
             return room;
         }
 
-        public async void CreateRoom(Room room)
+        public async Task CreateRoom(Room room)
         {
             await _context.Rooms.AddAsync(room);
         }
 
-        public void DeleteRoom(Room room)
+        public async Task DeleteRoom(Guid id)
         {
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.RoomId == id);
+
             _context.Rooms.Remove(room);
         }
 
-        public async Task<int> SaveChanges()
+        public async Task<bool> SaveChanges()
         {
-            return await _context.SaveChangesAsync();
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }
