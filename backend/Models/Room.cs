@@ -6,6 +6,6 @@ namespace backend.Models
         public string RoomName { get; set; }
         public string RoomCode { get; set; }
         public int Capacity { get; set; }
-        public ICollection<RoomAttendee> Attendees { get; set; }
+        public ICollection<RoomAttendee> Attendees { get; set; } = new List<RoomAttendee>();
     }
 }

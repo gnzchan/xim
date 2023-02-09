@@ -1,8 +1,11 @@
+using System.Linq;
 using backend.DTOs;
 using backend.Exceptions;
+using backend.Models;
 using backend.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -13,10 +16,12 @@ namespace backend.Controllers
     public class RoomsController : ControllerBase
     {
         private readonly RoomService _service;
+        private readonly UserManager<AppUser> _userManager;
 
-        public RoomsController(RoomService service)
+        public RoomsController(RoomService service, UserManager<AppUser> userManager)
         {
             _service = service;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -44,7 +49,9 @@ namespace backend.Controllers
         {
             try
             {
-                var room = await _service.CreateRoom(createRoomDto);
+                var user = await _userManager.GetUserAsync(User);
+
+                var room = await _service.CreateRoom(createRoomDto, user);
                 var isSuccess = await _service.SaveChanges();
 
                 if (!isSuccess)

@@ -31,7 +31,7 @@ namespace backend.Service
             return room;
         }
 
-        public async Task<Room> CreateRoom(CreateRoomDto createRoomDto)
+        public async Task<ReadRoomDto> CreateRoom(CreateRoomDto createRoomDto, AppUser user)
         {
             var similarRoomName = await _repository.GetRoomByName(createRoomDto.RoomName);
 
@@ -42,9 +42,18 @@ namespace backend.Service
 
             var room = _mapper.Map<Room>(createRoomDto);
 
+            var roomAttendee = new RoomAttendee
+            {
+                AppUserId = user.Id,
+                Room = room,
+                IsHost = true
+            };
+
+            room.Attendees.Add(roomAttendee);
+
             _repository.CreateRoom(room);
 
-            return room;
+            return _mapper.Map<ReadRoomDto>(room);
         }
 
         public async void DeleteRoom(Guid id)

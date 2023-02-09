@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,12 +16,20 @@ namespace backend.Data
 
         public async Task<List<Room>> GetRooms()
         {
-            return await _context.Rooms.ToListAsync();
+            var rooms = await _context.Rooms
+                .Include(r => r.Attendees)
+                .ThenInclude(u => u.AppUser)
+                .ToListAsync();
+
+            return rooms;
         }
 
         public async Task<Room> GetRoomById(Guid id)
         {
-            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.RoomId == id);
+            var room = await _context.Rooms
+                .Include(r => r.Attendees)
+                .ThenInclude(u => u.AppUser)
+                .FirstOrDefaultAsync(r => r.RoomId == id);
 
             return room;
         }
