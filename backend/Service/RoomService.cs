@@ -29,7 +29,7 @@ namespace backend.Service
 
         public async Task<ReadRoomDto> GetRoom(Guid id)
         {
-            var room = await _repository.GetRoomDtoById(id);
+            var room = await _repository.GetRoomDto(id);
 
             return room;
         }
@@ -59,9 +59,9 @@ namespace backend.Service
             return _mapper.Map<ReadRoomDto>(room);
         }
 
-        public async Task<bool> DeleteRoom(Guid id, AppUser user)
+        public async Task DeleteRoom(Guid id, AppUser user)
         {
-            var readRoomDto = await _repository.GetRoomDtoById(id);
+            var readRoomDto = await _repository.GetRoomDto(id);
 
             if (readRoomDto == null)
             {
@@ -74,13 +74,11 @@ namespace backend.Service
             }
 
             await _repository.DeleteRoom(readRoomDto.RoomId);
-
-            return true;
         }
 
-        public async Task<ReadRoomDto> JoinRoom(Guid id, AppUser user)
+        public async Task<ReadRoomDto> JoinRoom(string code, AppUser user)
         {
-            var room = await _repository.GetRoomById(id);
+            var room = await _repository.GetRoom(code);
 
             if (room == null)
             {
@@ -103,9 +101,9 @@ namespace backend.Service
             return _mapper.Map<ReadRoomDto>(room);
         }
 
-        public async Task LeaveRoom(Guid id, AppUser user)
+        public async Task LeaveRoom(string code, AppUser user)
         {
-            var room = await _repository.GetRoomById(id);
+            var room = await _repository.GetRoom(code);
 
             if (room == null)
             {

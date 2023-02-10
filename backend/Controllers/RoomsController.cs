@@ -1,9 +1,6 @@
-using System.Linq;
 using backend.DTOs;
 using backend.Exceptions;
 using backend.Exceptions.Common;
-using backend.Exceptions.JoinRoom;
-using backend.Exceptions.LeaveRoom;
 using backend.Models;
 using backend.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -75,7 +72,7 @@ namespace backend.Controllers
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var check = await _service.DeleteRoom(id, user);
+                await _service.DeleteRoom(id, user);
                 var isSuccess = await _service.SaveChanges();
 
                 if (!isSuccess)
@@ -91,13 +88,13 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPost("{id}/join")]
-        public async Task<IActionResult> JoinRoom(Guid id)
+        [HttpPost("{code}/join")]
+        public async Task<IActionResult> JoinRoom(string code)
         {
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var room = await _service.JoinRoom(id, user);
+                var room = await _service.JoinRoom(code, user);
                 var isSuccess = await _service.SaveChanges();
 
                 if (!isSuccess)
@@ -113,13 +110,13 @@ namespace backend.Controllers
             }
         }
 
-        [HttpDelete("{id}/leave")]
-        public async Task<IActionResult> LeaveRoom(Guid id)
+        [HttpDelete("{code}/leave")]
+        public async Task<IActionResult> LeaveRoom(string code)
         {
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                await _service.LeaveRoom(id, user);
+                await _service.LeaveRoom(code, user);
                 var isSuccess = await _service.SaveChanges();
 
                 if (!isSuccess)

@@ -26,7 +26,7 @@ namespace backend.Data
             return rooms;
         }
 
-        public async Task<ReadRoomDto> GetRoomDtoById(Guid id)
+        public async Task<ReadRoomDto> GetRoomDto(Guid id)
         {
             var room = await _context.Rooms
                 .ProjectTo<ReadRoomDto>(_mapper.ConfigurationProvider)
@@ -35,7 +35,7 @@ namespace backend.Data
             return room;
         }
 
-        public async Task<Room> GetRoomById(Guid id)
+        public async Task<Room> GetRoom(Guid id)
         {
             var room = await _context.Rooms
                 .Include(r => r.Attendees)
@@ -44,6 +44,17 @@ namespace backend.Data
 
             return room;
         }
+
+        public async Task<Room> GetRoom(string code)
+        {
+            var room = await _context.Rooms
+                .Include(r => r.Attendees)
+                .ThenInclude(u => u.AppUser)
+                .FirstOrDefaultAsync(r => r.RoomCode == code);
+
+            return room;
+        }
+
 
         public async Task<Room> GetRoomByName(string name)
         {
