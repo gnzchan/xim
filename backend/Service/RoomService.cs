@@ -20,18 +20,33 @@ namespace backend.Service
             _mapper = mapper;
         }
 
-        public async Task<List<ReadRoomDto>> GetRooms()
+        public async Task<List<ReadRoomDto>> GetRoomsDto()
         {
             var rooms = await _repository.GetRoomsDto();
 
             return rooms;
         }
 
-        public async Task<ReadRoomDto> GetRoom(Guid id)
+        public async Task<ReadRoomDto> GetRoomDto(Guid id)
         {
             var room = await _repository.GetRoomDto(id);
 
             return room;
+        }
+
+        public async Task<Room> GetRoom(Guid id)
+        {
+            var room = await _repository.GetRoom(id);
+
+            return room;
+        }
+
+        public async Task<List<ReadRoomDto>> GetMyRooms(AppUser user)
+        {
+            var allRooms = await _repository.GetRoomsDto();
+            var myRooms = allRooms.FindAll(r => r.HostUsername == user.UserName).ToList();
+
+            return myRooms;
         }
 
         public async Task<ReadRoomDto> CreateRoom(CreateRoomDto createRoomDto, AppUser user)

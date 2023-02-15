@@ -27,14 +27,23 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<ActionResult<List<ReadRoomDto>>> GetAllRooms()
         {
-            var rooms = await _service.GetRooms();
+            var user = await _userManager.GetUserAsync(User);
+            var rooms = await _service.GetRoomsDto();
+            return Ok(rooms);
+        }
+
+        [HttpGet("own")]
+        public async Task<ActionResult<List<ReadRoomDto>>> GetMyRooms()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var rooms = await _service.GetMyRooms(user);
             return Ok(rooms);
         }
 
         [HttpGet("{id}", Name = "GetRoom")]
         public async Task<ActionResult<ReadRoomDto>> GetRoom(Guid id)
         {
-            var room = await _service.GetRoom(id);
+            var room = await _service.GetRoomDto(id);
 
             if (room == null)
             {
