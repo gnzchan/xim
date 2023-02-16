@@ -5,7 +5,10 @@ namespace backend.DTOs
     public class UserRegistrationRequestDto
     {
         [Required]
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+
+        [Required]
+        public string LastName { get; set; }
 
         [Required]
         public string UserName { get; set; }

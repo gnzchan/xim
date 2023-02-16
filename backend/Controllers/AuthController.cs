@@ -43,6 +43,8 @@ namespace backend.Controllers
 
             var newUser = new AppUser
             {
+                FirstName = requestDto.FirstName,
+                LastName = requestDto.LastName,
                 Email = requestDto.Email,
                 UserName = requestDto.UserName,
             };
