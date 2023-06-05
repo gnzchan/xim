@@ -13,15 +13,11 @@ namespace backend.Profiles
 
             CreateMap<CreateRoomDto, Room>()
                 .ForMember(room => room.RoomId, opt => opt
-                .MapFrom(src => Guid.NewGuid()))
+                    .MapFrom(src => Guid.NewGuid()))
                 .ForMember(room => room.RoomCode, opt => opt
-                .MapFrom(src => Guid.NewGuid().ToString().Substring(0, 6)));
-
-            CreateMap<RoomAttendee, UserAttendeeDto>()
-                .ForMember(u => u.FirstName, opt => opt.MapFrom(src => src.AppUser.FirstName))
-                .ForMember(u => u.LastName, opt => opt.MapFrom(src => src.AppUser.LastName))
-                .ForMember(u => u.Username, opt => opt.MapFrom(src => src.AppUser.UserName))
-                .ForMember(u => u.Email, opt => opt.MapFrom(src => src.AppUser.Email));
+                    .MapFrom(src => Guid.NewGuid().ToString().Substring(0, 6).ToUpper()))
+                .ForMember(room => room.RoomName, opt => opt
+                    .MapFrom(src => src.RoomName.ToUpper()));
         }
     }
 }

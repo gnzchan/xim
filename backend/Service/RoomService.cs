@@ -1,3 +1,4 @@
+using System.Linq;
 using AutoMapper;
 using backend.Data;
 using backend.DTOs;
@@ -47,6 +48,14 @@ namespace backend.Service
             var myRooms = allRooms.FindAll(r => r.HostUsername == user.UserName).ToList();
 
             return myRooms;
+        }
+
+        public async Task<List<ReadRoomDto>> GetAttendedRooms(AppUser user)
+        {
+            var allRooms = await _repository.GetRoomsDto();
+            var attendedRooms = allRooms.Where(r => r.Attendees.Any(u => u.Username == user.UserName) && r.HostUsername != user.UserName).ToList();
+
+            return attendedRooms;
         }
 
         public async Task<ReadRoomDto> CreateRoom(CreateRoomDto createRoomDto, AppUser user)

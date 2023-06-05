@@ -7,6 +7,6 @@ namespace backend.DTOs
         public string RoomName { get; set; }
         public string RoomCode { get; set; }
         public int Capacity { get; set; }
-        public List<UserAttendeeDto> Attendees { get; set; }
+        public List<UserDto> Attendees { get; set; }
     }
 }

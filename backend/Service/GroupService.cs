@@ -1,4 +1,5 @@
 using AutoMapper;
+using backend.DTOs;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 
@@ -21,7 +22,9 @@ namespace backend.Service
 
             foreach (var attendee in room.Attendees)
             {
-                groups.ElementAt(groupIndex).Members.Add(attendee.AppUser.UserName);
+                var userDto = _mapper.Map<UserDto>(attendee.AppUser);
+
+                groups.ElementAt(groupIndex).Members.Add(userDto);
 
                 groupIndex++;
                 if (groupIndex == numberOfGroups)

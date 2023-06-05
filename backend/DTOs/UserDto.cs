@@ -1,6 +1,6 @@
 namespace backend.DTOs
 {
-    public class UserAttendeeDto
+    public class UserDto
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

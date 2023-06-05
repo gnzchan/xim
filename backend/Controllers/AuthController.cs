@@ -1,6 +1,8 @@
 using backend.DTOs;
 using backend.Models;
 using backend.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,11 +14,24 @@ namespace backend.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly TokenService _tokenService;
+        private readonly UserService _userService;
 
-        public AuthController(UserManager<AppUser> userManager, TokenService tokenService)
+        public AuthController(UserManager<AppUser> userManager, TokenService tokenService, UserService userService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _userService = userService;
+        }
+
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var userDto = _userService.GetUserDto(user);
+
+            return Ok(userDto);
         }
 
         [HttpPost("register")]
@@ -68,6 +83,7 @@ namespace backend.Controllers
             return Ok(new AuthResult
             {
                 Token = token,
+                User = _userService.GetUserDto(newUser),
                 ResultIsSuccess = true
             });
         }
@@ -113,6 +129,7 @@ namespace backend.Controllers
             return Ok(new AuthResult
             {
                 Token = token,
+                User = _userService.GetUserDto(user),
                 ResultIsSuccess = true,
             });
         }

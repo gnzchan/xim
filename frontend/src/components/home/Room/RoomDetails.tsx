@@ -1,0 +1,87 @@
+import { Box, Button, Typography } from "@mui/material";
+import { Form, Formik } from "formik";
+import { useParams } from "react-router-dom";
+import { useGetRoomQuery } from "../../../app/store/room/roomsApiSlice";
+import InputField from "../../common/InputField";
+import * as yup from "yup";
+import { useState } from "react";
+import GroupsGrid from "../Groups/GroupsGrid";
+
+const RoomDetails = () => {
+  const { roomId } = useParams<{ roomId: string }>();
+  const { data: room } = useGetRoomQuery(roomId!);
+
+  const [numOfGroups, setNumOfGroups] = useState(0);
+
+  const ATTENDEES_COUNT = room?.attendees.length ?? 0;
+
+  const shuffleGroupsSchema = yup.object().shape({
+    numOfGroups: yup
+      .number()
+      .moreThan(0, "Must be more than 0")
+      .lessThan(ATTENDEES_COUNT + 1, `Must be less than ${ATTENDEES_COUNT + 1}`)
+      .required("Number of groups is required"),
+  });
+
+  return (
+    <>
+      {room && (
+        <Box sx={{ border: "1px solid red", width: "80%", height: "100%" }}>
+          <Box>
+            <Box sx={{ marginBlock: "30px" }}>
+              <Typography variant="h4">
+                {room.roomCode} - {room.roomName}
+              </Typography>
+              <Typography variant="subtitle1">
+                {room.hostUsername} ·{" "}
+                <b>
+                  {room.attendees.length}/{room.capacity}
+                </b>
+              </Typography>
+            </Box>
+
+            {room.attendees.map((attendee, i) => (
+              <p key={i}>{attendee.username}</p>
+            ))}
+          </Box>
+          <Box>
+            {roomId && numOfGroups > 0 && (
+              <GroupsGrid roomId={roomId} numOfGroups={numOfGroups} />
+            )}
+            <Formik
+              initialValues={{ numOfGroups: 1 }}
+              validationSchema={shuffleGroupsSchema}
+              onSubmit={async (values, actions) => {
+                setNumOfGroups(values.numOfGroups);
+              }}
+            >
+              {(formik) => (
+                <Form style={{ width: "100%" }} noValidate>
+                  <InputField
+                    type="number"
+                    inpProps={{
+                      style: {
+                        textAlign: "center",
+                      },
+                    }}
+                    {...formik.getFieldProps("numOfGroups")}
+                  />
+                  <Button
+                    type="submit"
+                    variant="outlined"
+                    color="primary"
+                    fullWidth
+                  >
+                    Shuffle
+                  </Button>
+                </Form>
+              )}
+            </Formik>
+          </Box>
+        </Box>
+      )}
+    </>
+  );
+};
+
+export default RoomDetails;

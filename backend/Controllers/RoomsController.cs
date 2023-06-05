@@ -40,6 +40,14 @@ namespace backend.Controllers
             return Ok(rooms);
         }
 
+        [HttpGet("attended")]
+        public async Task<ActionResult> GetAttendedRooms()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var rooms = await _service.GetAttendedRooms(user);
+            return Ok(rooms);
+        }
+
         [HttpGet("{id}", Name = "GetRoom")]
         public async Task<ActionResult<ReadRoomDto>> GetRoom(Guid id)
         {
