@@ -1,10 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../store";
+import { User } from "../../models/user";
 
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: null,
+    user: {
+      firstName: "",
+      lastName: "",
+      username: "",
+      email: "",
+    },
     token: null,
   },
   reducers: {
@@ -14,7 +20,12 @@ const authSlice = createSlice({
       state.token = token;
     },
     logout: (state) => {
-      state.user = null;
+      state.user = {
+        firstName: "",
+        lastName: "",
+        username: "",
+        email: "",
+      };
       state.token = null;
       // persistor.purge();
     },

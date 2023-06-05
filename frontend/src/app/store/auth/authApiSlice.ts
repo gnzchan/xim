@@ -1,3 +1,4 @@
+import { User } from "../../models/user";
 import { apiSlice } from "../api/apiSlice";
 
 export const authApiSlice = apiSlice.injectEndpoints({
@@ -16,7 +17,11 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: { ...credentials },
       }),
     }),
+    getCurrentUser: builder.query<User, void>({
+      query: () => "/auth/current-user",
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation } = authApiSlice;
+export const { useLoginMutation, useRegisterMutation, useGetCurrentUserQuery } =
+  authApiSlice;
