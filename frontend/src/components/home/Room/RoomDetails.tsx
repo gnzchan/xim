@@ -6,10 +6,15 @@ import InputField from "../../common/InputField";
 import * as yup from "yup";
 import { useState } from "react";
 import GroupsGrid from "../Groups/GroupsGrid";
+import { useGetCurrentUserQuery } from "../../../app/store/auth/authApiSlice";
+import { selectCurrentUser } from "../../../app/store/auth/authSlice";
+import { useSelector } from "react-redux";
+import { User } from "../../../app/models/user";
 
 const RoomDetails = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const { data: room } = useGetRoomQuery(roomId!);
+  const currentUser: User = useSelector(selectCurrentUser);
 
   const [numOfGroups, setNumOfGroups] = useState(0);
 
@@ -48,35 +53,37 @@ const RoomDetails = () => {
             {roomId && numOfGroups > 0 && (
               <GroupsGrid roomId={roomId} numOfGroups={numOfGroups} />
             )}
-            <Formik
-              initialValues={{ numOfGroups: 1 }}
-              validationSchema={shuffleGroupsSchema}
-              onSubmit={async (values, actions) => {
-                setNumOfGroups(values.numOfGroups);
-              }}
-            >
-              {(formik) => (
-                <Form style={{ width: "100%" }} noValidate>
-                  <InputField
-                    type="number"
-                    inpProps={{
-                      style: {
-                        textAlign: "center",
-                      },
-                    }}
-                    {...formik.getFieldProps("numOfGroups")}
-                  />
-                  <Button
-                    type="submit"
-                    variant="outlined"
-                    color="primary"
-                    fullWidth
-                  >
-                    Shuffle
-                  </Button>
-                </Form>
-              )}
-            </Formik>
+            {currentUser.username === room.hostUsername && (
+              <Formik
+                initialValues={{ numOfGroups: 1 }}
+                validationSchema={shuffleGroupsSchema}
+                onSubmit={async (values, actions) => {
+                  setNumOfGroups(values.numOfGroups);
+                }}
+              >
+                {(formik) => (
+                  <Form style={{ width: "100%" }} noValidate>
+                    <InputField
+                      type="number"
+                      inpProps={{
+                        style: {
+                          textAlign: "center",
+                        },
+                      }}
+                      {...formik.getFieldProps("numOfGroups")}
+                    />
+                    <Button
+                      type="submit"
+                      variant="outlined"
+                      color="primary"
+                      fullWidth
+                    >
+                      Shuffle
+                    </Button>
+                  </Form>
+                )}
+              </Formik>
+            )}
           </Box>
         </Box>
       )}
