@@ -3,12 +3,12 @@ import { Form, Formik } from "formik";
 import { useParams } from "react-router-dom";
 import { useGetRoomQuery } from "../../../app/store/room/roomsApiSlice";
 import InputField from "../../common/InputField";
-import * as yup from "yup";
 import { useState } from "react";
 import GroupsGrid from "../Groups/GroupsGrid";
 import { selectCurrentUser } from "../../../app/store/auth/authSlice";
 import { useSelector } from "react-redux";
 import { User } from "../../../app/models/user";
+import { createShuffleGroupsSchema } from "../../../app/schemas";
 
 const RoomDetails = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -18,14 +18,7 @@ const RoomDetails = () => {
   const [numOfGroups, setNumOfGroups] = useState(0);
 
   const ATTENDEES_COUNT = room?.attendees.length ?? 0;
-
-  const shuffleGroupsSchema = yup.object().shape({
-    numOfGroups: yup
-      .number()
-      .moreThan(0, "Must be more than 0")
-      .lessThan(ATTENDEES_COUNT + 1, `Must be less than ${ATTENDEES_COUNT + 1}`)
-      .required("Number of groups is required"),
-  });
+  const shuffleGroupsSchema = createShuffleGroupsSchema(ATTENDEES_COUNT);
 
   return (
     <>

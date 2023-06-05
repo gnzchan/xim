@@ -52,3 +52,13 @@ export const joinRoomSchema = yup.object().shape({
     .matches(ROOMCODE_REGEX, "Must be 6-characters alphanumeric")
     .required("Room code is required"),
 });
+
+export const createShuffleGroupsSchema = (ATTENDEES_COUNT: number) => {
+  return yup.object().shape({
+    numOfGroups: yup
+      .number()
+      .moreThan(0, "Must be more than 0")
+      .lessThan(ATTENDEES_COUNT + 1, `Must be less than ${ATTENDEES_COUNT + 1}`)
+      .required("Number of groups is required"),
+  });
+};
