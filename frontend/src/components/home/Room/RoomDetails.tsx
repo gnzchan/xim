@@ -6,7 +6,6 @@ import InputField from "../../common/InputField";
 import * as yup from "yup";
 import { useState } from "react";
 import GroupsGrid from "../Groups/GroupsGrid";
-import { useGetCurrentUserQuery } from "../../../app/store/auth/authApiSlice";
 import { selectCurrentUser } from "../../../app/store/auth/authSlice";
 import { useSelector } from "react-redux";
 import { User } from "../../../app/models/user";

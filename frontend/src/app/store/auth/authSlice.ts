@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../store";
-import { User } from "../../models/user";
 
 const authSlice = createSlice({
   name: "auth",
