@@ -15,6 +15,7 @@ namespace backend.Extensions
             services.AddScoped<RoomService>();
             services.AddScoped<GroupService>();
             services.AddAutoMapper(typeof(UserProfile).Assembly, typeof(RoomProfile).Assembly);
+            services.AddSignalR();
 
             return services;
         }

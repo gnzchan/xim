@@ -1,4 +1,5 @@
 using backend.Extensions;
+using backend.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,5 +27,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<RoomHub>("/hubs/room");
 
 app.Run();
