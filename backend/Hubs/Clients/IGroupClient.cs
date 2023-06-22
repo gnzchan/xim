@@ -4,6 +4,7 @@ namespace backend.Hubs.Clients
 {
     public interface IGroupClient
     {
+        Task SendMessage(string message);
         Task ReceiveGroup(Group group);
     }
 }
