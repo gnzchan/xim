@@ -6,17 +6,21 @@ using backend.Exceptions;
 using backend.Exceptions.Common;
 using backend.Exceptions.JoinRoom;
 using backend.Exceptions.LeaveRoom;
+using backend.Hubs;
 using backend.Models;
+using Microsoft.AspNetCore.SignalR;
 
 namespace backend.Service
 {
     public class RoomService
     {
+        private readonly IHubContext<RoomHub> _hubContext;
         private readonly RoomRepository _repository;
         private readonly IMapper _mapper;
 
-        public RoomService(RoomRepository repository, IMapper mapper)
+        public RoomService(IHubContext<RoomHub> hubContext, RoomRepository repository, IMapper mapper)
         {
+            _hubContext = hubContext;
             _repository = repository;
             _mapper = mapper;
         }
@@ -122,6 +126,8 @@ namespace backend.Service
 
             room.Attendees.Add(roomAttendee);
 
+            await _hubContext.Clients.Group(roomAttendee.RoomId.ToString()).SendAsync("JoinRoom", roomAttendee);
+
             return _mapper.Map<ReadRoomDto>(room);
         }
 
@@ -147,6 +153,8 @@ namespace backend.Service
             }
 
             room.Attendees.Remove(roomAttendee);
+
+            await _hubContext.Clients.Group(roomAttendee.RoomId.ToString()).SendAsync("LeaveRoom", roomAttendee);
         }
 
         public async Task<bool> SaveChanges()

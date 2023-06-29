@@ -13,10 +13,16 @@ namespace backend.Hubs
             await Clients.Group(roomAttendee.RoomId.ToString()).SendMessage($"{roomAttendee.AppUser.UserName} has joined {roomAttendee.RoomId.ToString()}");
         }
 
-
-        public async Task SendGroup(Group group)
+        public async Task LeaveRoom(RoomAttendee roomAttendee)
         {
-            await Clients.All.ReceiveGroup(group);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomAttendee.RoomId.ToString());
+
+            await Clients.Group(roomAttendee.RoomId.ToString()).SendMessage($"{roomAttendee.AppUser.UserName} has left {roomAttendee.RoomId.ToString()}");
+        }
+
+        public async Task ReceiveGroups(List<Group> groups)
+        {
+            await Clients.OthersInGroup(Context.ConnectionId).UpdateGroups(groups);
         }
     }
 }
