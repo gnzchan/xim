@@ -12,4 +12,9 @@ export const groupsApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useGetGroupsQuery } = groupsApiSlice;
+export const { useLazyGetGroupsQuery } = groupsApiSlice;
+
+// <
+//       Group[],
+//       { roomId: string | undefined; numOfGroups: number }
+//     >

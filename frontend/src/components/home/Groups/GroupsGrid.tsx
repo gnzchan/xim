@@ -1,19 +1,14 @@
 import { Grid } from "@mui/material";
 import { Group } from "../../../app/models/group";
-import { useGetGroupsQuery } from "../../../app/store/group/groupsApiSlice";
 import GroupCard from "./GroupCard";
+import { useState, useEffect } from "react";
+import { HubConnectionBuilder } from "@microsoft/signalr";
 
 interface Props {
-  roomId: string;
-  numOfGroups: number;
+  groups: Group[] | null;
 }
 
-const GroupsGrid = ({ roomId, numOfGroups }: Props) => {
-  const { data: groups } = useGetGroupsQuery({
-    roomId,
-    numOfGroups,
-  });
-
+const GroupsGrid = ({ groups }: Props) => {
   return (
     <div>
       <Grid

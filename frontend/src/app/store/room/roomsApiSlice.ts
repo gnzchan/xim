@@ -14,6 +14,7 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
     }),
     getRoom: builder.query<Room, string>({
       query: (roomCode) => `/rooms/${roomCode}`,
+      providesTags: ["AttendedRooms"],
     }),
     createRoom: builder.mutation<Room, CreateRoom>({
       query: (room) => ({

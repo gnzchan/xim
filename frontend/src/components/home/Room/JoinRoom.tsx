@@ -27,8 +27,7 @@ const JoinRoom = () => {
         onSubmit={async (values, actions) => {
           actions.resetForm();
           try {
-            const room = await joinRoom(values.roomCode).unwrap();
-            console.log(room);
+            await joinRoom(values.roomCode).unwrap();
           } catch (error) {
             console.log(error);
           }

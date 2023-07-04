@@ -3,22 +3,74 @@ import { Form, Formik } from "formik";
 import { useParams } from "react-router-dom";
 import { useGetRoomQuery } from "../../../app/store/room/roomsApiSlice";
 import InputField from "../../common/InputField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GroupsGrid from "../Groups/GroupsGrid";
 import { selectCurrentUser } from "../../../app/store/auth/authSlice";
 import { useSelector } from "react-redux";
 import { User } from "../../../app/models/user";
 import { createShuffleGroupsSchema } from "../../../app/schemas";
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import { useLazyGetGroupsQuery } from "../../../app/store/group/groupsApiSlice";
+import { Group } from "../../../app/models/group";
 
 const RoomDetails = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const { data: room } = useGetRoomQuery(roomId!);
   const currentUser: User = useSelector(selectCurrentUser);
 
-  const [numOfGroups, setNumOfGroups] = useState(0);
+  const [numOfGroups, setNumOfGroups] = useState(1);
+  const [groups, setGroups] = useState<Group[] | null>(null);
+
+  const [trigger] = useLazyGetGroupsQuery();
 
   const ATTENDEES_COUNT = room?.attendees.length ?? 0;
   const shuffleGroupsSchema = createShuffleGroupsSchema(ATTENDEES_COUNT);
+
+  const [connection, setConnection] = useState<HubConnection | null>(null);
+
+  useEffect(() => {
+    const connection = new HubConnectionBuilder()
+      .withUrl("http://localhost:5000/hubs/room")
+      .withAutomaticReconnect()
+      .build();
+
+    setConnection(connection);
+
+    connection.on("SendMessage", (message) => console.log(message));
+    connection.on("UpdateGroups", (groups) => setGroups(groups));
+
+    const joinRoom = async () => {
+      try {
+        await connection.start();
+        console.log("SignalR connection started.");
+
+        await connection.invoke("JoinRoom", {
+          roomId: roomId,
+          appUser: currentUser,
+        });
+      } catch (error) {
+        console.error("Error starting SignalR connection:", error);
+      }
+    };
+
+    joinRoom();
+  }, []);
+
+  const updateGroups = async (num: number) => {
+    try {
+      const result = await trigger({
+        roomId,
+        numOfGroups: num,
+      });
+
+      await connection?.invoke("ReceiveGroups", {
+        roomId: roomId,
+        groups: result.data,
+      });
+    } catch (error) {
+      console.error("Error invoking ReceiveGroups:", error);
+    }
+  };
 
   return (
     <>
@@ -42,15 +94,14 @@ const RoomDetails = () => {
             ))}
           </Box>
           <Box>
-            {roomId && numOfGroups > 0 && (
-              <GroupsGrid roomId={roomId} numOfGroups={numOfGroups} />
-            )}
+            {roomId && numOfGroups > 0 && <GroupsGrid groups={groups} />}
             {currentUser.username === room.hostUsername && (
               <Formik
                 initialValues={{ numOfGroups: 1 }}
                 validationSchema={shuffleGroupsSchema}
-                onSubmit={async (values, actions) => {
+                onSubmit={(values) => {
                   setNumOfGroups(values.numOfGroups);
+                  updateGroups(values.numOfGroups);
                 }}
               >
                 {(formik) => (
