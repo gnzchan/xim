@@ -34,7 +34,7 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var groups = _groupService.GetGroups(room, numberOfGroups);
+            var groups = await _groupService.GetGroups(room, numberOfGroups);
 
             return Ok(groups);
         }

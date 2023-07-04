@@ -1,28 +1,28 @@
+using backend.DTOs;
 using backend.Hubs.Clients;
-using backend.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace backend.Hubs
 {
     public class RoomHub : Hub<IGroupClient>
     {
-        public async Task JoinRoom(RoomAttendee roomAttendee)
+        public async Task JoinRoom(RoomAttendeeDto roomAttendee)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, roomAttendee.RoomId.ToString());
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomAttendee.RoomId);
 
-            await Clients.Group(roomAttendee.RoomId.ToString()).SendMessage($"{roomAttendee.AppUser.UserName} has joined {roomAttendee.RoomId.ToString()}");
+            await Clients.Group(roomAttendee.RoomId).SendMessage($"{Context.ConnectionId} / {roomAttendee.AppUser.Username} has joined {roomAttendee.RoomId.ToString()}");
         }
 
-        public async Task LeaveRoom(RoomAttendee roomAttendee)
+        public async Task LeaveRoom(RoomAttendeeDto roomAttendee)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomAttendee.RoomId.ToString());
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomAttendee.RoomId);
 
-            await Clients.Group(roomAttendee.RoomId.ToString()).SendMessage($"{roomAttendee.AppUser.UserName} has left {roomAttendee.RoomId.ToString()}");
+            await Clients.Group(roomAttendee.RoomId).SendMessage($"{roomAttendee.AppUser.Username} has left {roomAttendee.RoomId}");
         }
 
-        public async Task ReceiveGroups(List<Group> groups)
+        public async Task ReceiveGroups(ReceiveGroupsDto receiveGroups)
         {
-            await Clients.OthersInGroup(Context.ConnectionId).UpdateGroups(groups);
+            await Clients.Group(receiveGroups.RoomId).UpdateGroups(receiveGroups.Groups);
         }
     }
 }

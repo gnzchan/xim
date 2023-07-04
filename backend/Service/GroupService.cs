@@ -36,8 +36,6 @@ namespace backend.Service
                 }
             }
 
-            await _hubContext.Clients.Group(room.RoomId.ToString()).SendAsync("ReceiveGroups", groups);
-
             return groups;
         }
     }

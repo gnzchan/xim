@@ -126,7 +126,7 @@ namespace backend.Service
 
             room.Attendees.Add(roomAttendee);
 
-            await _hubContext.Clients.Group(roomAttendee.RoomId.ToString()).SendAsync("JoinRoom", roomAttendee);
+            // await _hubContext.Clients.Group(roomAttendee.RoomId.ToString()).SendAsync("JoinRoom", roomAttendee);
 
             return _mapper.Map<ReadRoomDto>(room);
         }
@@ -154,7 +154,7 @@ namespace backend.Service
 
             room.Attendees.Remove(roomAttendee);
 
-            await _hubContext.Clients.Group(roomAttendee.RoomId.ToString()).SendAsync("LeaveRoom", roomAttendee);
+            // await _hubContext.Clients.Group(roomAttendee.RoomId.ToString()).SendAsync("LeaveRoom", roomAttendee);
         }
 
         public async Task<bool> SaveChanges()
