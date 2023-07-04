@@ -17,7 +17,7 @@ namespace backend.Service
             _mapper = mapper;
         }
 
-        public async Task<List<Group>> GetGroups(Room room, int numberOfGroups)
+        public List<Group> GetGroups(Room room, int numberOfGroups)
         {
             var groups = Enumerable.Range(0, numberOfGroups).Select(i => new Group() { Id = i }).ToList();
 
