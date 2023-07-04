@@ -1,8 +1,6 @@
 import { Grid } from "@mui/material";
 import { Group } from "../../../app/models/group";
 import GroupCard from "./GroupCard";
-import { useState, useEffect } from "react";
-import { HubConnectionBuilder } from "@microsoft/signalr";
 
 interface Props {
   groups: Group[] | null;
