@@ -7,7 +7,7 @@ interface Props {
 }
 
 const RoomGrid = ({ rooms }: Props) => {
-  console.log(rooms);
+  // console.log(rooms);
   return (
     <Grid
       container

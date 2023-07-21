@@ -28,8 +28,6 @@ const RoomDetails = () => {
 
   const [connection, setConnection] = useState<HubConnection | null>(null);
 
-  console.log(room);
-
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl("http://localhost:5000/hubs/room")
@@ -67,6 +65,8 @@ const RoomDetails = () => {
         roomId,
         numOfGroups: num,
       });
+
+      setGroups(result?.data ?? null);
 
       await connection?.invoke("ReceiveGroups", {
         roomId: roomId,
