@@ -12,6 +12,7 @@ namespace backend.Extensions
             services.AddDbContext<XimDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("Default")));
             services.AddScoped<UserService>();
             services.AddScoped<RoomRepository>();
+            services.AddScoped<GroupRepository>();
             services.AddScoped<RoomService>();
             services.AddScoped<GroupService>();
             services.AddAutoMapper(typeof(UserProfile).Assembly, typeof(RoomProfile).Assembly);

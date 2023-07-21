@@ -1,5 +1,4 @@
 using backend.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +12,8 @@ namespace backend.Data
 
         public DbSet<Room> Rooms { get; set; }
         public DbSet<RoomAttendee> RoomAttendees { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<GroupAttendee> GroupAttendees { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -30,6 +31,24 @@ namespace backend.Data
                 .HasOne(ra => ra.Room)
                 .WithMany(r => r.Attendees)
                 .HasForeignKey(ra => ra.RoomId);
+
+            builder.Entity<Group>()
+                .HasOne(g => g.Room)
+                .WithMany(r => r.Groups)
+                .HasForeignKey(g => g.RoomId);
+
+            builder.Entity<GroupAttendee>()
+                .HasKey(ga => new { ga.AppUserId, ga.GroupId });
+
+            builder.Entity<GroupAttendee>()
+                .HasOne(ga => ga.AppUser)
+                .WithMany(au => au.Groups)
+                .HasForeignKey(ga => ga.AppUserId);
+
+            builder.Entity<GroupAttendee>()
+                .HasOne(ga => ga.Group)
+                .WithMany(g => g.Members)
+                .HasForeignKey(ga => ga.GroupId);
         }
     }
 }

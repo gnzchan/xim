@@ -5,7 +5,11 @@ namespace backend.Models
     public class Group
     {
         // public string Name { get; set; }
-        public int Id { get; set; }
-        public List<UserDto> Members { get; set; } = new List<UserDto>();
+        public Guid GroupId { get; set; }
+
+        public Guid RoomId { get; set; }
+        public Room Room { get; set; }
+
+        public ICollection<GroupAttendee> Members { get; set; } = new List<GroupAttendee>();
     }
 }

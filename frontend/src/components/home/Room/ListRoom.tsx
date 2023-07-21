@@ -11,8 +11,11 @@ import {
 import RoomGrid from "./RoomGrid";
 
 const ListRoom = () => {
+  const result = useGetMyRoomsQuery();
   const { data: myRooms } = useGetMyRoomsQuery();
   const { data: myAttendedRooms } = useGetMyAttendedRoomsQuery();
+
+  console.log(result);
 
   const dispatch = useDispatch();
   const activeRoomTab = useSelector(selectActiveRoomTab);

@@ -7,5 +7,6 @@ namespace backend.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public ICollection<RoomAttendee> Rooms { get; set; }
+        public ICollection<GroupAttendee> Groups { get; set; }
     }
 }

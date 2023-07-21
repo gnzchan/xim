@@ -1,4 +1,5 @@
 using AutoMapper;
+using backend.Data;
 using backend.DTOs;
 using backend.Hubs;
 using backend.Models;
@@ -8,35 +9,51 @@ namespace backend.Service
 {
     public class GroupService
     {
+        private readonly GroupRepository _repository;
         private readonly IHubContext<RoomHub> _hubContext;
         private readonly IMapper _mapper;
 
-        public GroupService(IHubContext<RoomHub> hubContext, IMapper mapper)
+        public GroupService(GroupRepository repository, IHubContext<RoomHub> hubContext, IMapper mapper)
         {
+            _repository = repository;
             _hubContext = hubContext;
             _mapper = mapper;
         }
 
-        public List<Group> GetGroups(Room room, int numberOfGroups)
+        public async Task<List<GroupDto>> GetGroups(Room room, int numberOfGroups)
         {
-            var groups = Enumerable.Range(0, numberOfGroups).Select(i => new Group() { Id = i }).ToList();
+            // create groups
+            // save to db
+            // return groups
+            Random random = new Random();
+            var groups = Enumerable.Range(0, numberOfGroups).Select(i => new Group() { GroupId = Guid.NewGuid(), RoomId = room.RoomId, Room = room }).ToList();
 
-            var groupIndex = 0;
+            var numberOfMembersPerGroup = (int)Math.Ceiling((double)room.Attendees.Count / numberOfGroups);
 
             foreach (var attendee in room.Attendees)
             {
-                var userDto = _mapper.Map<UserDto>(attendee.AppUser);
-
-                groups.ElementAt(groupIndex).Members.Add(userDto);
-
-                groupIndex++;
-                if (groupIndex == numberOfGroups)
+                Group randomGroup;
+                do
                 {
-                    groupIndex = 0;
-                }
+                    randomGroup = groups[random.Next(groups.Count)];
+                } while (randomGroup.Members.Count >= numberOfMembersPerGroup);
+
+                var groupAttendee = new GroupAttendee
+                {
+                    AppUserId = attendee.AppUserId,
+                    GroupId = randomGroup.GroupId,
+                };
+                randomGroup.Members.Add(groupAttendee);
             }
 
-            return groups;
+            await _repository.CreateGroups(groups);
+
+            return _mapper.Map<List<GroupDto>>(groups);
+        }
+
+        public async Task<bool> SaveChanges()
+        {
+            return await _repository.SaveChanges();
         }
     }
 }

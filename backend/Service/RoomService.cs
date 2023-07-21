@@ -1,4 +1,3 @@
-using System.Linq;
 using AutoMapper;
 using backend.Data;
 using backend.DTOs;

@@ -15,7 +15,7 @@ import { Group } from "../../../app/models/group";
 
 const RoomDetails = () => {
   const { roomId } = useParams<{ roomId: string }>();
-  const { data: room } = useGetRoomQuery(roomId!);
+  const { data: room, refetch } = useGetRoomQuery(roomId!);
   const currentUser: User = useSelector(selectCurrentUser);
 
   const [numOfGroups, setNumOfGroups] = useState(1);
@@ -28,6 +28,8 @@ const RoomDetails = () => {
 
   const [connection, setConnection] = useState<HubConnection | null>(null);
 
+  console.log(room);
+
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl("http://localhost:5000/hubs/room")
@@ -36,7 +38,10 @@ const RoomDetails = () => {
 
     setConnection(connection);
 
-    connection.on("SendMessage", (message) => console.log(message));
+    connection.on("SendMessage", (message) => {
+      console.log(message);
+      refetch();
+    });
     connection.on("UpdateGroups", (groups) => setGroups(groups));
 
     const joinRoom = async () => {

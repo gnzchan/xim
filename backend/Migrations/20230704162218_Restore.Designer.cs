@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -11,9 +12,10 @@ using backend.Data;
 namespace API.Migrations
 {
     [DbContext(typeof(XimDbContext))]
-    partial class XimDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230704162218_Restore")]
+    partial class Restore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,37 +23,6 @@ namespace API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("backend.Models.Group", b =>
-                {
-                    b.Property<Guid>("GroupId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("GroupId");
-
-                    b.HasIndex("RoomId");
-
-                    b.ToTable("Groups");
-                });
-
-            modelBuilder.Entity("backend.Models.GroupAttendee", b =>
-                {
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("AppUserId", "GroupId");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("GroupAttendees");
-                });
 
             modelBuilder.Entity("backend.Models.Room", b =>
                 {
@@ -308,36 +279,6 @@ namespace API.Migrations
                     b.HasDiscriminator().HasValue("AppUser");
                 });
 
-            modelBuilder.Entity("backend.Models.Group", b =>
-                {
-                    b.HasOne("backend.Models.Room", "Room")
-                        .WithMany("Groups")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("backend.Models.GroupAttendee", b =>
-                {
-                    b.HasOne("backend.Models.AppUser", "AppUser")
-                        .WithMany("Groups")
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.Group", "Group")
-                        .WithMany("Members")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Group");
-                });
-
             modelBuilder.Entity("backend.Models.RoomAttendee", b =>
                 {
                     b.HasOne("backend.Models.AppUser", "AppUser")
@@ -408,22 +349,13 @@ namespace API.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("backend.Models.Group", b =>
-                {
-                    b.Navigation("Members");
-                });
-
             modelBuilder.Entity("backend.Models.Room", b =>
                 {
                     b.Navigation("Attendees");
-
-                    b.Navigation("Groups");
                 });
 
             modelBuilder.Entity("backend.Models.AppUser", b =>
                 {
-                    b.Navigation("Groups");
-
                     b.Navigation("Rooms");
                 });
 #pragma warning restore 612, 618

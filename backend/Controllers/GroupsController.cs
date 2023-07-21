@@ -1,3 +1,4 @@
+using backend.Exceptions.Common;
 using backend.Models;
 using backend.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -34,7 +35,13 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var groups = _groupService.GetGroups(room, numberOfGroups);
+            var groups = await _groupService.GetGroups(room, numberOfGroups);
+            var isSuccess = await _groupService.SaveChanges();
+
+            if (!isSuccess)
+            {
+                return BadRequest(new SaveToServerException().Message);
+            }
 
             return Ok(groups);
         }
