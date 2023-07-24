@@ -24,8 +24,24 @@ namespace backend.Controllers
             _userManager = userManager;
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<List<Group>>> GetGroups(Guid id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var room = await _roomService.GetRoom(id);
+
+            if (!room.Attendees.Any(a => a.AppUser.UserName == user.UserName))
+            {
+                return Unauthorized();
+            }
+
+            var groups = await _groupService.GetGroups(id);
+
+            return Ok(groups);
+        }
+
         [HttpGet("{id}/{numberOfGroups}")]
-        public async Task<ActionResult<List<Group>>> GetGroups(Guid id, int numberOfGroups)
+        public async Task<ActionResult<List<Group>>> CreateGroups(Guid id, int numberOfGroups)
         {
             var user = await _userManager.GetUserAsync(User);
             var room = await _roomService.GetRoom(id);
@@ -35,7 +51,7 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var groups = await _groupService.GetGroups(room, numberOfGroups);
+            var groups = await _groupService.CreateGroups(room, numberOfGroups);
             var isSuccess = await _groupService.SaveChanges();
 
             if (!isSuccess)

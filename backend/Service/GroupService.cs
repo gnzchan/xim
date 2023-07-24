@@ -20,11 +20,15 @@ namespace backend.Service
             _mapper = mapper;
         }
 
-        public async Task<List<GroupDto>> GetGroups(Room room, int numberOfGroups)
+        public async Task<List<GroupDto>> GetGroups(Guid id)
         {
-            // create groups
-            // save to db
-            // return groups
+            var groups = await _repository.GetGroupsDto(id);
+
+            return groups;
+        }
+
+        public async Task<List<GroupDto>> CreateGroups(Room room, int numberOfGroups)
+        {
             Random random = new Random();
             var groups = Enumerable.Range(0, numberOfGroups).Select(i => new Group() { GroupId = Guid.NewGuid(), RoomId = room.RoomId, Room = room }).ToList();
 
@@ -44,6 +48,12 @@ namespace backend.Service
                     GroupId = randomGroup.GroupId,
                 };
                 randomGroup.Members.Add(groupAttendee);
+            }
+
+            var outdatedGroups = await _repository.GetGroupsDto(room.RoomId);
+            if (outdatedGroups.Any())
+            {
+                await _repository.DeleteGroups(room.RoomId);
             }
 
             await _repository.CreateGroups(groups);

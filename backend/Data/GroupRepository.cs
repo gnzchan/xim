@@ -17,9 +17,9 @@ namespace backend.Data
             _context = context;
         }
 
-        public async Task<List<GroupDto>> GetMyGroupsDto()
+        public async Task<List<GroupDto>> GetGroupsDto(Guid roomId)
         {
-            var groups = await _context.Groups
+            var groups = await _context.Groups.Where(g => g.RoomId == roomId)
                 .ProjectTo<GroupDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
 
@@ -29,6 +29,13 @@ namespace backend.Data
         public async Task CreateGroups(List<Group> groups)
         {
             await _context.Groups.AddRangeAsync(groups);
+        }
+
+        public async Task DeleteGroups(Guid roomId)
+        {
+            var outdatedGroups = await _context.Groups.Where(g => g.RoomId == roomId).ToListAsync();
+
+            _context.Groups.RemoveRange(outdatedGroups);
         }
 
         public async Task<bool> SaveChanges()
