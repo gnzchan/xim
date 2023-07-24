@@ -1,3 +1,4 @@
+import { Group } from "./group";
 import { User } from "./user";
 
 export interface Room {
@@ -7,4 +8,5 @@ export interface Room {
   roomCode: string;
   capacity: number;
   attendees: User[];
+  groups: Group[];
 }

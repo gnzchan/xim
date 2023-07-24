@@ -14,19 +14,17 @@ import { useLazyGetGroupsQuery } from "../../../app/store/group/groupsApiSlice";
 import { Group } from "../../../app/models/group";
 
 const RoomDetails = () => {
+  const [connection, setConnection] = useState<HubConnection | null>(null);
+  const [trigger] = useLazyGetGroupsQuery();
+  const currentUser: User = useSelector(selectCurrentUser);
   const { roomId } = useParams<{ roomId: string }>();
   const { data: room, refetch } = useGetRoomQuery(roomId!);
-  const currentUser: User = useSelector(selectCurrentUser);
 
-  const [numOfGroups, setNumOfGroups] = useState(1);
   const [groups, setGroups] = useState<Group[] | null>(null);
-
-  const [trigger] = useLazyGetGroupsQuery();
+  const [numOfGroups, setNumOfGroups] = useState<number>(1);
 
   const ATTENDEES_COUNT = room?.attendees.length ?? 0;
   const shuffleGroupsSchema = createShuffleGroupsSchema(ATTENDEES_COUNT);
-
-  const [connection, setConnection] = useState<HubConnection | null>(null);
 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
@@ -37,10 +35,12 @@ const RoomDetails = () => {
     setConnection(connection);
 
     connection.on("SendMessage", (message) => {
-      console.log(message);
       refetch();
     });
-    connection.on("UpdateGroups", (groups) => setGroups(groups));
+    connection.on("UpdateGroups", (group) => {
+      refetch();
+      setGroups(group);
+    });
 
     const joinRoom = async () => {
       try {
@@ -57,6 +57,8 @@ const RoomDetails = () => {
     };
 
     joinRoom();
+
+    setGroups(room!.groups);
   }, []);
 
   const updateGroups = async (num: number) => {
@@ -102,10 +104,9 @@ const RoomDetails = () => {
             {roomId && numOfGroups > 0 && <GroupsGrid groups={groups} />}
             {currentUser.username === room.hostUsername && (
               <Formik
-                initialValues={{ numOfGroups: 1 }}
+                initialValues={{ numOfGroups: numOfGroups }}
                 validationSchema={shuffleGroupsSchema}
                 onSubmit={(values) => {
-                  setNumOfGroups(values.numOfGroups);
                   updateGroups(values.numOfGroups);
                 }}
               >
